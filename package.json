@@ -1,0 +1,27 @@
+{
+  "name": "@nuage/route",
+  "version": "0.1.0",
+  "main": "umd/index.js",
+  "types": "umd/index.d.ts",
+  "private": false,
+  "scripts": {
+    "lib": "node rollup.config.js"
+  },
+  "devDependencies": {
+    "rollup": "^1.24.0",
+    "rollup-plugin-typescript2": "^0.24.3",
+    "rollup-plugin-uglify": "^6.0.3",
+    "typescript": "3.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ymzuiku/nuage-route.git"
+  },
+  "bugs": {
+    "url": "git+https://github.com/ymzuiku/nuage-route.git"
+  },
+  "homepage": "git+https://github.com/ymzuiku/nuage-route.git",
+  "dependencies": {
+    "querystring-number": "^1.0.6"
+  }
+}
