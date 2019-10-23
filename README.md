@@ -4,6 +4,14 @@ Vanilla route
 
 ## Install
 
+unpkg:
+
+```html
+<script src="https://unpkg.com/@nuage/route@0.1.2/umd/index.js"></script>
+```
+
+npm:
+
 ```sh
 $ npm install --save @nuage/route
 ```
