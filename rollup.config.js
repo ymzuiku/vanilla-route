@@ -33,7 +33,7 @@ clearDir(pwd('umd'));
 
 const watchOptions = [
   {
-    input: './lib/index.ts',
+    input: './src/index.ts',
     output: {
       file: './umd/index.js',
       format: 'umd',

@@ -1,4 +1,4 @@
-import queryString from './querystring-number';
+import queryString from 'querystring-number';
 
 (function() {
   const props = ['pushState', 'replaceState', 'back', 'forward', 'go', 'scrollRestoration'];
@@ -272,6 +272,6 @@ export const createHistory = (): IHistory => {
     replace: dispatcHistoryReplace,
     state,
     paths,
-    Route: null,
+    Route: null as any,
   };
 };
