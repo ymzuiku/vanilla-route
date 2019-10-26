@@ -12,8 +12,8 @@ declare type IDispatchInitHistory = (def: string, keepHistory?: boolean, hashSpa
 export interface IHistory {
     /** 重新初始化路由 */
     init: IDispatchInitHistory;
-    /** Route */
-    Route: (route: IRouteProps) => HTMLDivElement;
+    /** Register */
+    Register: (target: IRouteProps) => HTMLDivElement;
     /** 获取某个path的状态 */
     checkPathMatch(path: string): [boolean, boolean, number];
     /** 为history的变化添加监听 */

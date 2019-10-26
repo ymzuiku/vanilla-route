@@ -43,8 +43,8 @@ type IDispatchInitHistory = (def: string, keepHistory?: boolean, hashSpace?: str
 export interface IHistory {
   /** 重新初始化路由 */
   init: IDispatchInitHistory;
-  /** Route */
-  Route: (route: IRouteProps) => HTMLDivElement;
+  /** Register */
+  Register: (target: IRouteProps) => HTMLDivElement;
   /** 获取某个path的状态 */
   checkPathMatch(path: string): [boolean, boolean, number];
   /** 为history的变化添加监听 */
@@ -272,6 +272,6 @@ export const createHistory = (): IHistory => {
     replace: dispatcHistoryReplace,
     state,
     paths,
-    Route: null as any,
+    Register: null as any,
   };
 };

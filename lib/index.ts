@@ -13,10 +13,10 @@ const HIDDEN_POINTEREVENTS = 'none';
 const vanillaRoute = createHistory();
 
 /**
- *  Route 使用 history.listen 而不使用 consumer 是因为 Route 属于非常固定的模式.
- *  Route 会常驻 ReactNode 对象树，使用 listen 可以有效减少不必要的 consumer 订阅。
+ *  Register 使用 history.listen 而不使用 consumer 是因为 Route 属于非常固定的模式.
+ *  Register 会常驻 ReactNode 对象树，使用 listen 可以有效减少不必要的 consumer 订阅。
  */
-function Route<S>({ path, component, delay, keep = true, leaveTime }: IRouteProps) {
+function Register<S>({ path, component, delay, keep = true, leaveTime }: IRouteProps) {
   const route = document.createElement('div');
   route.setAttribute('route', path);
 
@@ -138,6 +138,6 @@ function Route<S>({ path, component, delay, keep = true, leaveTime }: IRouteProp
   return route;
 }
 
-vanillaRoute.Route = Route;
+vanillaRoute.Register = Register;
 
 export default vanillaRoute;

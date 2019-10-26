@@ -19,9 +19,9 @@ $ npm install --save vanilla-route
 ## Use
 
 ```js
-import vanillaRoute from 'vanilla-route';
+import Route from 'vanilla-route';
 
-const Route = vanillaRoute.Route;
+const Register = Route.Register;
 
 function Home() {
   return document.createElement('div').textContext('Home Page');
@@ -31,9 +31,9 @@ function User() {
   return document.createElement('div').textContext('User Page');
 }
 
-const root = document.createElement('div');
-route.append(Route({ path: '/home', component: Home }), Route({ path: '/user', component: User }));
+const app = document.createElement('div');
+app.append(Register({ path: '/home', component: Home }), Register({ path: '/user', component: User }));
 
-document.body.append(root);
-routeManage.init('/home');
+document.body.append(app);
+Route.init('/home');
 ```
