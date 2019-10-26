@@ -1,6 +1,6 @@
 {
-  "name": "@nuage/route",
-  "version": "0.1.2",
+  "name": "vanilla-route",
+  "version": "0.1.3",
   "main": "umd/index.js",
   "types": "umd/index.d.ts",
   "private": false,
@@ -15,12 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ymzuiku/nuage-route.git"
+    "url": "git+https://github.com/ymzuiku/vanilla-route.git"
   },
   "bugs": {
-    "url": "git+https://github.com/ymzuiku/nuage-route.git"
+    "url": "git+https://github.com/ymzuiku/vanilla-route.git"
   },
-  "homepage": "git+https://github.com/ymzuiku/nuage-route.git",
+  "homepage": "git+https://github.com/ymzuiku/vanilla-route.git",
   "dependencies": {
     "querystring-number": "^1.0.6"
   }

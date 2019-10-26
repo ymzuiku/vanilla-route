@@ -1,4 +1,4 @@
-# @nuage/route
+# vanilla-route
 
 Vanilla route
 
@@ -7,21 +7,21 @@ Vanilla route
 unpkg:
 
 ```html
-<script src="https://unpkg.com/@nuage/route@0.1.2/umd/index.js"></script>
+<script src="https://unpkg.com/vanilla-route@0.1.3/umd/index.js"></script>
 ```
 
 npm:
 
 ```sh
-$ npm install --save @nuage/route
+$ npm install --save vanilla-route
 ```
 
 ## Use
 
 ```js
-import nuageRoute from '@nuage/route';
+import vanillaRoute from 'vanilla-route';
 
-const Route = nuageRoute.Route;
+const Route = vanillaRoute.Route;
 
 function Home() {
   return document.createElement('div').textContext('Home Page');

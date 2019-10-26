@@ -10,7 +10,7 @@ const SHOW_POSIRION = 'relative';
 const SHOW_POINTEREVENTS = 'auto';
 const HIDDEN_POINTEREVENTS = 'none';
 
-const nuageRoute = createHistory();
+const vanillaRoute = createHistory();
 
 /**
  *  Route 使用 history.listen 而不使用 consumer 是因为 Route 属于非常固定的模式.
@@ -50,7 +50,7 @@ function Route<S>({ path, component, delay, keep = true, leaveTime }: IRouteProp
   setRouteStyle();
 
   const onHistoryUpdate = () => {
-    const [match, stackMatch, lastPage] = nuageRoute.checkPathMatch(path);
+    const [match, stackMatch, lastPage] = vanillaRoute.checkPathMatch(path);
 
     if (match) {
       // 如果没有 child, 先读取，再重新执行
@@ -133,11 +133,11 @@ function Route<S>({ path, component, delay, keep = true, leaveTime }: IRouteProp
     }
   };
 
-  nuageRoute.listen(onHistoryUpdate);
+  vanillaRoute.listen(onHistoryUpdate);
 
   return route;
 }
 
-nuageRoute.Route = Route;
+vanillaRoute.Route = Route;
 
-export default nuageRoute;
+export default vanillaRoute;

@@ -33,11 +33,11 @@ clearDir(pwd('umd'));
 
 const watchOptions = [
   {
-    input: './src/index.ts',
+    input: './lib/index.ts',
     output: {
       file: './umd/index.js',
       format: 'umd',
-      name: 'nuageRoute',
+      name: 'vanillaRoute',
       sourcemap: true,
       globals: {
         queryString: 'querystring-number',

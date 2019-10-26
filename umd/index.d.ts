@@ -1,2 +1,2 @@
-declare const nuageRoute: import("./createHistory").IHistory;
-export default nuageRoute;
+declare const vanillaRoute: import("./createHistory").IHistory;
+export default vanillaRoute;
