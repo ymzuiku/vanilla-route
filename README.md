@@ -1,5 +1,7 @@
 # vanilla-route
 
+# 【Impotant】Please Use [vanilla-navi](https://github.com/ymzuiku/vanilla-navi), this repository Not in maintenance.
+
 Vanilla route
 
 ## Install
