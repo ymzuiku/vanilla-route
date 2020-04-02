@@ -1,7 +1,5 @@
 # vanilla-route
 
-# 【Impotant】Please Use [vanilla-navi](https://github.com/ymzuiku/vanilla-navi), this repository Not in maintenance.
-
 Vanilla route
 
 ## Install
@@ -9,7 +7,7 @@ Vanilla route
 unpkg:
 
 ```html
-<script src="https://unpkg.com/vanilla-route@0.1.3/umd/index.js"></script>
+<script src="https://unpkg.com/vanilla-route@0.2.0/umd/index.js"></script>
 ```
 
 npm:
@@ -21,9 +19,8 @@ $ npm install --save vanilla-route
 ## Use
 
 ```js
-import Route from 'vanilla-route';
+import route from 'vanilla-route';
 
-const Register = Route.Register;
 
 function Home() {
   return document.createElement('div').textContext('Home Page');
@@ -33,9 +30,17 @@ function User() {
   return document.createElement('div').textContext('User Page');
 }
 
-const app = document.createElement('div');
-app.append(Register({ path: '/home', component: Home }), Register({ path: '/user', component: User }));
+route.use('/', Home);
+route.use('/user', User);
+// 根据当前浏览器路由渲染一次路径
+route.render();
+document.body.append(route.target);
 
-document.body.append(app);
-Route.init('/home');
+setTimeout(()=>{
+  // 进行导航
+  route.push('/user');
+  route.pop();
+  route.replace('/user');
+}, 1000);
+
 ```
