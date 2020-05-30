@@ -1,6 +1,9 @@
 const target = document.createElement("div");
 target.style.cssText = "width:100%; height:100%";
 
+const cacheScrollTop: { [key: string]: number } = {};
+(window as any).st = cacheScrollTop;
+
 const route = {
   target,
   loading: () => "loading...",
@@ -21,6 +24,30 @@ const route = {
       }, delay);
     }
   },
+  saveScrollTop: (ele?: HTMLElement) => {
+    if (ele) {
+      cacheScrollTop[window.location.href] = ele.scrollTop;
+    } else {
+      cacheScrollTop[window.location.href] = window.scrollY;
+    }
+  },
+  replaceScrollTop: (ele?: HTMLElement): Promise<number> => {
+    return new Promise((res) => {
+      requestAnimationFrame(() => {
+        const top = cacheScrollTop[window.location.href] as number;
+        if (top) {
+          if (ele) {
+            ele.scrollTo(0, top);
+            (window as any).scrollElement = undefined;
+          } else {
+            window.scrollTo({ top });
+          }
+        }
+        res(top || 0);
+      });
+    });
+  },
+  getLastScrollTop: () => (cacheScrollTop[window.location.href] as number) || 0,
   push: (path: string) => {
     window.history.pushState(null, "", "#" + path);
     route.render();
@@ -28,6 +55,7 @@ const route = {
   pop: () => {
     window.history.back();
     route.render();
+    cacheScrollTop[window.location.href] = undefined as any;
   },
   replace: (path: string) => {
     window.history.replaceState(null, "", "#" + path);
