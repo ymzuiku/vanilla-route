@@ -1,5 +1,12 @@
 declare const route: {
     target: HTMLDivElement;
+    qs: {
+        parse: typeof import("querystring-number").parse;
+        stringify: typeof import("querystring-number").stringify;
+        decode: typeof import("querystring-number").decode;
+        encode: typeof import("querystring-number").encode;
+    };
+    params: () => any;
     loading: () => string;
     errorPath: string;
     nowRenderPath: string;

@@ -1,6 +1,6 @@
 {
   "name": "vanilla-route",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "main": "umd/index.js",
   "types": "umd/index.d.ts",
   "private": false,
@@ -20,5 +20,8 @@
   "bugs": {
     "url": "git+https://github.com/ymzuiku/vanilla-route.git"
   },
-  "homepage": "git+https://github.com/ymzuiku/vanilla-route.git"
+  "homepage": "git+https://github.com/ymzuiku/vanilla-route.git",
+  "dependencies": {
+    "querystring-number": "^1.0.8"
+  }
 }

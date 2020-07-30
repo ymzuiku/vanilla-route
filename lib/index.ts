@@ -1,3 +1,4 @@
+import qs from "querystring-number";
 const target = document.createElement("div");
 target.style.cssText = "width:100%; height:100%";
 
@@ -6,6 +7,14 @@ const cacheScrollTop: { [key: string]: number } = {};
 
 const route = {
   target,
+  qs,
+  params: () => {
+    const hash = location.hash.split("?");
+    if (!hash[1]) {
+      return {};
+    }
+    return route.qs.parse(hash[1]);
+  },
   loading: () => "loading...",
   errorPath: "/",
   nowRenderPath: "",
