@@ -5,60 +5,154 @@ target.style.cssText = "width:100%; height:100%";
 const cacheScrollTop: { [key: string]: number } = {};
 (window as any).st = cacheScrollTop;
 
+interface Params {
+  url: string;
+  path: string;
+  [key: string]: any;
+}
+
 const route = {
+  $$: {
+    beforePush: [] as any[],
+    beforeRender: [] as any[],
+    paramsCache: {} as any,
+    paramsRouter: {} as any,
+    nowRenderPath: "",
+    routerMap: {} as any,
+    liveRouterFns: [] as any[],
+    getLiveRoute: () => {
+      const l = route.$$.liveRouterFns.length;
+      const params = route.params();
+      for (let i = 0; i < l; i++) {
+        const component = route.$$.liveRouterFns[i](params);
+        if (component) {
+          return component;
+        }
+      }
+      return null;
+    },
+  },
   target,
   qs,
-  params: () => {
-    const hash = location.hash.split("?");
-    if (!hash[1]) {
-      return {};
+  params: (): Params => {
+    const href = window.location.href;
+    const last = route.$$.paramsCache[href];
+    if (last) {
+      return last;
     }
-    return route.qs.parse(hash[1]);
+
+    const path = route.getPath();
+    const urlParams = {} as any;
+
+    Object.keys(route.$$.paramsRouter).forEach((v) => {
+      if (path.indexOf(v) === 0) {
+        const p = route.$$.paramsRouter[v];
+        const _p = p.replace(/:/g, "").replace(v, "");
+        const _v = path.replace(v, "");
+        const listp = _p.split("/");
+        const listv = _v.split("/");
+        listp.forEach((k: string, i: number) => {
+          urlParams[k] = listv[i] || "";
+        });
+      }
+    });
+
+    const hash = window.location.hash.split("?");
+    const url = window.location.hash.replace("#", "");
+    if (!hash[1]) {
+      const out = {
+        path,
+        url,
+        ...urlParams,
+      };
+      route.$$.paramsCache[href] = out;
+      return out;
+    }
+
+    const out = {
+      url,
+      path,
+      ...urlParams,
+      ...route.qs.parse(hash[1]),
+    };
+
+    route.$$.paramsCache[href] = out;
+
+    return out;
   },
   loading: () => "loading...",
   errorPath: "/",
-  nowRenderPath: "",
-  routerMap: {} as any,
-  /** return isCanRender */
-  beforeRender: (undefined as any) as (path: string) => boolean | string,
+  listenEvents: [] as ((params: Params) => any)[],
+  beforeRender: (fn: (path: string) => any) => {
+    route.$$.beforeRender.push(fn);
+  },
+  beforePush: (fn: (path: string) => boolean | string) => {
+    route.$$.beforePush.push(fn);
+  },
   use: function (path: string, component: any, delay?: number) {
-    route.routerMap[path] = component;
+    if (/:/.test(path)) {
+      route.$$.paramsRouter[path.split(":")[0]] = path;
+    }
+    route.$$.routerMap[path] = component;
     if (delay !== undefined) {
       setTimeout(() => {
         if (!component.__promising) {
           component().then((v: any) => {
-            route.routerMap[path] = v;
+            route.$$.routerMap[path as any] = v;
           });
         }
       }, delay);
     }
   },
-  saveScrollTop: (ele?: HTMLElement) => {
-    if (ele) {
-      cacheScrollTop[window.location.href] = ele.scrollTop;
-    } else {
-      cacheScrollTop[window.location.href] = window.scrollY;
-    }
-  },
-  replaceScrollTop: (ele?: HTMLElement): Promise<number> => {
-    return new Promise((res) => {
-      requestAnimationFrame(() => {
-        const top = cacheScrollTop[window.location.href] as number;
-        if (top) {
-          if (ele) {
-            ele.scrollTo(0, top);
-            (window as any).scrollElement = undefined;
-          } else {
-            window.scrollTo({ top });
+  scroll: {
+    saveScrollTop: (ele?: HTMLElement) => {
+      if (ele) {
+        cacheScrollTop[window.location.href] = ele.scrollTop;
+      } else {
+        cacheScrollTop[window.location.href] = window.scrollY;
+      }
+    },
+    replaceScrollTop: (ele?: HTMLElement): Promise<number> => {
+      return new Promise((res) => {
+        requestAnimationFrame(() => {
+          const top = cacheScrollTop[window.location.href] as number;
+          if (top) {
+            if (ele) {
+              ele.scrollTo(0, top);
+              (window as any).scrollElement = undefined;
+            } else {
+              window.scrollTo({ top });
+            }
           }
-        }
-        res(top || 0);
+          res(top || 0);
+        });
       });
-    });
+    },
+    getLastScrollTop: () =>
+      (cacheScrollTop[window.location.href] as number) || 0,
   },
-  getLastScrollTop: () => (cacheScrollTop[window.location.href] as number) || 0,
-  push: (path: string) => {
+  push: async (path: string) => {
+    if (typeof route.beforePush === "function") {
+      for (const fn of route.$$.beforePush) {
+        path = await Promise.resolve(fn(path));
+      }
+    }
+    if (typeof path !== "string") {
+      return;
+    }
     window.history.pushState(null, "", "#" + path);
+    route.render();
+  },
+  replace: async (path: string) => {
+    if (typeof route.beforePush === "function") {
+      for (const fn of route.$$.beforePush) {
+        path = await Promise.resolve(fn(path));
+      }
+    }
+    if (typeof path !== "string") {
+      return;
+    }
+    window.history.replaceState(null, "", "#" + path);
     route.render();
   },
   pop: () => {
@@ -66,45 +160,60 @@ const route = {
     route.render();
     cacheScrollTop[window.location.href] = undefined as any;
   },
-  replace: (path: string) => {
-    window.history.replaceState(null, "", "#" + path);
-    route.render();
-  },
   getPath: () => {
     const url = window.location.hash.split("#")[1] || "/";
     return url.split("?")[0];
   },
   render: async () => {
-    let path = route.getPath();
-
-    if (route.nowRenderPath === path) {
-      return;
+    if (!route.$$.routerMap[route.errorPath]) {
+      console.error("Undefined route.errorPath:", route.errorPath);
+      // return;
     }
-
+    const path = route.getPath();
     if (typeof route.beforeRender === "function") {
-      const nextPath = route.beforeRender(path);
-      if (nextPath === false) {
-        return;
-      }
-      if (typeof nextPath === "string") {
-        path = nextPath;
+      for (const fn of route.$$.beforeRender) {
+        await Promise.resolve(fn(path));
       }
     }
 
-    if (!route.routerMap[path]) {
-      route.replace(route.errorPath);
+    if (route.$$.nowRenderPath === path) {
       return;
     }
 
-    const component = route.routerMap[path];
-    route.nowRenderPath = path;
+    let component = route.$$.routerMap[path];
+
+    // 处理动态路由
+    if (!component) {
+      Object.keys(route.$$.paramsRouter).forEach((v) => {
+        if (path.indexOf(v) === 0) {
+          const p = route.$$.paramsRouter[v];
+          component = route.$$.routerMap[p];
+        }
+      });
+    }
+
+    if (!component) {
+      route.replace(route.errorPath + "?" + path);
+      return;
+    }
+
+    route.$$.nowRenderPath = path;
 
     const timer = setTimeout(() => {
       route.target.append(route.loading());
     }, 200);
 
     component.__promising = true;
-    const comp = await Promise.resolve(component());
+    let comp = await Promise.resolve(component());
+    if (comp.default) {
+      comp = comp.default;
+    }
+
+    const params = route.params();
+
+    route.listenEvents.forEach((fn) => {
+      fn(params);
+    });
     if (typeof comp === "function") {
       clearTimeout(timer);
       route.target.innerText = "";

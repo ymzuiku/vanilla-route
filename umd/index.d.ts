@@ -1,4 +1,19 @@
+interface Params {
+    url: string;
+    path: string;
+    [key: string]: any;
+}
 declare const route: {
+    $$: {
+        beforePush: any[];
+        beforeRender: any[];
+        paramsCache: any;
+        paramsRouter: any;
+        nowRenderPath: string;
+        routerMap: any;
+        liveRouterFns: any[];
+        getLiveRoute: () => any;
+    };
     target: HTMLDivElement;
     qs: {
         parse: typeof import("querystring-number").parse;
@@ -6,20 +21,21 @@ declare const route: {
         decode: typeof import("querystring-number").decode;
         encode: typeof import("querystring-number").encode;
     };
-    params: () => any;
+    params: () => Params;
     loading: () => string;
     errorPath: string;
-    nowRenderPath: string;
-    routerMap: any;
-    /** return isCanRender */
-    beforeRender: (path: string) => string | boolean;
+    listenEvents: ((params: Params) => any)[];
+    beforeRender: (fn: (path: string) => any) => void;
+    beforePush: (fn: (path: string) => string | boolean) => void;
     use: (path: string, component: any, delay?: number | undefined) => void;
-    saveScrollTop: (ele?: HTMLElement | undefined) => void;
-    replaceScrollTop: (ele?: HTMLElement | undefined) => Promise<number>;
-    getLastScrollTop: () => number;
-    push: (path: string) => void;
+    scroll: {
+        saveScrollTop: (ele?: HTMLElement | undefined) => void;
+        replaceScrollTop: (ele?: HTMLElement | undefined) => Promise<number>;
+        getLastScrollTop: () => number;
+    };
+    push: (path: string) => Promise<void>;
+    replace: (path: string) => Promise<void>;
     pop: () => void;
-    replace: (path: string) => void;
     getPath: () => string;
     render: () => Promise<void>;
 };
