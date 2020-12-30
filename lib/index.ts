@@ -3,7 +3,7 @@ const target = document.createElement("div");
 target.style.cssText = "width:100%; height:100%";
 
 const cacheScrollTop: { [key: string]: number } = {};
-(window as any).st = cacheScrollTop;
+(window as any).cacheScrollTop = cacheScrollTop;
 
 interface Params {
   url: string;
@@ -167,7 +167,7 @@ const route = {
   render: async () => {
     if (!route.$$.routerMap[route.errorPath]) {
       console.error("Undefined route.errorPath:", route.errorPath);
-      // return;
+      return;
     }
     const path = route.getPath();
     if (typeof route.beforeRender === "function") {
