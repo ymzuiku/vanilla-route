@@ -216,6 +216,7 @@ const route = {
     });
     if (typeof comp === "function") {
       clearTimeout(timer);
+
       const c = comp();
       if (c.then) {
         c.then((res: any) => {
@@ -224,9 +225,10 @@ const route = {
             route.target.appendChild(res);
           }
         });
+      } else {
+        route.target.innerText = "";
+        route.target.appendChild(c);
       }
-      route.target.innerText = "";
-      route.target.appendChild(c);
     } else {
       clearTimeout(timer);
       if (comp.then) {
@@ -236,10 +238,10 @@ const route = {
             route.target.appendChild(res);
           }
         });
+      } else {
+        route.target.innerText = "";
+        route.target.appendChild(comp);
       }
-
-      route.target.innerText = "";
-      route.target.appendChild(comp);
     }
   },
 };
