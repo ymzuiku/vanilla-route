@@ -220,7 +220,9 @@ const route = {
       const c = comp();
       if (c.then) {
         c.then((res: any) => {
-          route.target.appendChild(res);
+          if (res && (res as HTMLElement).nodeName) {
+            route.target.appendChild(res);
+          }
         });
       }
       route.target.appendChild(c);
