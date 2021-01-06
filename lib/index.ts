@@ -217,7 +217,13 @@ const route = {
     if (typeof comp === "function") {
       clearTimeout(timer);
       route.target.innerText = "";
-      route.target.appendChild(comp());
+      const c = comp();
+      if (c.then) {
+        c.then((res: any) => {
+          route.target.appendChild(res);
+        });
+      }
+      route.target.appendChild(c);
     } else {
       clearTimeout(timer);
       route.target.innerText = "";
