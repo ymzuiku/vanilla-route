@@ -216,18 +216,28 @@ const route = {
     });
     if (typeof comp === "function") {
       clearTimeout(timer);
-      route.target.innerText = "";
       const c = comp();
       if (c.then) {
         c.then((res: any) => {
           if (res && (res as HTMLElement).nodeName) {
+            route.target.innerText = "";
             route.target.appendChild(res);
           }
         });
       }
+      route.target.innerText = "";
       route.target.appendChild(c);
     } else {
       clearTimeout(timer);
+      if (comp.then) {
+        comp.then((res: any) => {
+          if (res && (res as HTMLElement).nodeName) {
+            route.target.innerText = "";
+            route.target.appendChild(res);
+          }
+        });
+      }
+
       route.target.innerText = "";
       route.target.appendChild(comp);
     }
