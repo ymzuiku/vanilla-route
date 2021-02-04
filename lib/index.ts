@@ -2,8 +2,8 @@ import qs from "querystring-number";
 const target = document.createElement("div");
 target.style.cssText = "width:100%; height:100%";
 
-const cacheScrollTop: { [key: string]: number } = {};
-(window as any).cacheScrollTop = cacheScrollTop;
+// const cacheScrollTop: { [key: string]: number } = {};
+// (window as any).cacheScrollTop = cacheScrollTop;
 
 interface Params {
   url: string;
@@ -104,33 +104,33 @@ export const route = {
       }, delay);
     }
   },
-  scroll: {
-    saveScrollTop: (ele?: HTMLElement) => {
-      if (ele) {
-        cacheScrollTop[window.location.href] = ele.scrollTop;
-      } else {
-        cacheScrollTop[window.location.href] = window.scrollY;
-      }
-    },
-    replaceScrollTop: (ele?: HTMLElement): Promise<number> => {
-      return new Promise((res) => {
-        requestAnimationFrame(() => {
-          const top = cacheScrollTop[window.location.href] as number;
-          if (top) {
-            if (ele) {
-              ele.scrollTo(0, top);
-              (window as any).scrollElement = undefined;
-            } else {
-              window.scrollTo({ top });
-            }
-          }
-          res(top || 0);
-        });
-      });
-    },
-    getLastScrollTop: () =>
-      (cacheScrollTop[window.location.href] as number) || 0,
-  },
+  // scroll: {
+  //   saveScrollTop: (ele?: HTMLElement) => {
+  //     if (ele) {
+  //       cacheScrollTop[window.location.href] = ele.scrollTop;
+  //     } else {
+  //       cacheScrollTop[window.location.href] = window.scrollY;
+  //     }
+  //   },
+  //   replaceScrollTop: (ele?: HTMLElement): Promise<number> => {
+  //     return new Promise((res) => {
+  //       requestAnimationFrame(() => {
+  //         const top = cacheScrollTop[window.location.href] as number;
+  //         if (top) {
+  //           if (ele) {
+  //             ele.scrollTo(0, top);
+  //             (window as any).scrollElement = undefined;
+  //           } else {
+  //             window.scrollTo({ top });
+  //           }
+  //         }
+  //         res(top || 0);
+  //       });
+  //     });
+  //   },
+  //   getLastScrollTop: () =>
+  //     (cacheScrollTop[window.location.href] as number) || 0,
+  // },
   push: async (path: string, scrollTop?: boolean) => {
     if (typeof route.beforePush === "function") {
       for (const fn of route.$$.beforePush) {
@@ -164,7 +164,7 @@ export const route = {
   pop: () => {
     window.history.back();
     route.render();
-    cacheScrollTop[window.location.href] = undefined as any;
+    // cacheScrollTop[window.location.href] = undefined as any;
   },
   getPath: () => {
     const url = window.location.hash.split("#")[1] || "/";
