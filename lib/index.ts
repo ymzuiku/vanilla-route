@@ -142,6 +142,7 @@ export const route = {
     }
     window.history.pushState(null, "", "#" + path);
     route.render();
+    window.scrollTo({ top: 0 });
   },
   replace: async (path: string) => {
     if (typeof route.beforePush === "function") {
@@ -154,6 +155,7 @@ export const route = {
     }
     window.history.replaceState(null, "", "#" + path);
     route.render();
+    window.scrollTo({ top: 0 });
   },
   pop: () => {
     window.history.back();
