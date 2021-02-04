@@ -131,7 +131,7 @@ export const route = {
     getLastScrollTop: () =>
       (cacheScrollTop[window.location.href] as number) || 0,
   },
-  push: async (path: string) => {
+  push: async (path: string, scrollTop?: boolean) => {
     if (typeof route.beforePush === "function") {
       for (const fn of route.$$.beforePush) {
         path = await Promise.resolve(fn(path));
@@ -142,9 +142,11 @@ export const route = {
     }
     window.history.pushState(null, "", "#" + path);
     route.render();
-    window.scrollTo({ top: 0 });
+    if (scrollTop) {
+      window.scrollTo({ top: 0 });
+    }
   },
-  replace: async (path: string) => {
+  replace: async (path: string, scrollTop?: boolean) => {
     if (typeof route.beforePush === "function") {
       for (const fn of route.$$.beforePush) {
         path = await Promise.resolve(fn(path));
@@ -155,7 +157,9 @@ export const route = {
     }
     window.history.replaceState(null, "", "#" + path);
     route.render();
-    window.scrollTo({ top: 0 });
+    if (scrollTop) {
+      window.scrollTo({ top: 0 });
+    }
   },
   pop: () => {
     window.history.back();
