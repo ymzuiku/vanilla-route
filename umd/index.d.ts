@@ -3,7 +3,7 @@ interface Params {
     path: string;
     [key: string]: any;
 }
-declare const route: {
+export declare const route: {
     $$: {
         beforePush: any[];
         beforeRender: any[];

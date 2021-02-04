@@ -11,7 +11,7 @@ interface Params {
   [key: string]: any;
 }
 
-const route = {
+export const route = {
   $$: {
     beforePush: [] as any[],
     beforeRender: [] as any[],
