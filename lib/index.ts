@@ -1,260 +1,255 @@
-import qs from "querystring-number";
-const target = document.createElement("div");
-target.style.cssText = "width:100%; height:100%";
+import queryString from "querystring-number";
 
-// const cacheScrollTop: { [key: string]: number } = {};
-// (window as any).cacheScrollTop = cacheScrollTop;
+const ua = navigator.userAgent.toLocaleLowerCase();
+const isIOS = /(?:iphone)/.test(ua);
+const isWechat = /micromessenger/.test(ua);
 
-interface Params {
-  url: string;
-  path: string;
-  [key: string]: any;
+export interface VanillaRouteProps {
+  url: string | (() => boolean);
+  render: any;
+  keep?: boolean;
+  preload?: boolean | number;
 }
 
-export const route = {
-  $$: {
-    beforePush: [] as any[],
-    beforeRender: [] as any[],
-    paramsCache: {} as any,
-    paramsRouter: {} as any,
-    nowRenderPath: "",
-    routerMap: {} as any,
-    liveRouterFns: [] as any[],
-    getLiveRoute: () => {
-      const l = route.$$.liveRouterFns.length;
-      const params = route.params();
-      for (let i = 0; i < l; i++) {
-        const component = route.$$.liveRouterFns[i](params);
-        if (component) {
-          return component;
-        }
-      }
-      return null;
-    },
-  },
-  target,
-  qs,
-  params: (): Params => {
-    const href = window.location.href;
-    const last = route.$$.paramsCache[href];
-    if (last) {
-      return last;
-    }
+const keepTags = {} as { [key: string]: string };
 
-    const path = route.getPath();
-    const urlParams = {} as any;
+/** 添加 window.listen */
+const listFn = [] as any[];
 
-    Object.keys(route.$$.paramsRouter).forEach((v) => {
-      if (path.indexOf(v) === 0) {
-        const p = route.$$.paramsRouter[v];
-        const _p = p.replace(/:/g, "").replace(v, "");
-        const _v = path.replace(v, "");
-        const listp = _p.split("/");
-        const listv = _v.split("/");
-        listp.forEach((k: string, i: number) => {
-          urlParams[k] = listv[i] || "";
-        });
-      }
-    });
-
-    const hash = window.location.hash.split("?");
-    const url = window.location.hash.replace("#", "");
-    if (!hash[1]) {
-      const out = {
-        path,
-        url,
-        ...urlParams,
-      };
-      route.$$.paramsCache[href] = out;
-      return out;
+["popstate", "pushState", "replaceState", "backState"].forEach((v) => {
+  window.addEventListener(v, () => {
+    Route.state = queryString.parse(location.search);
+    if (v === "popstate" || v === "backState") {
+      delete keepTags[_lastUrl];
     }
-
-    const out = {
-      url,
-      path,
-      ...urlParams,
-      ...route.qs.parse(hash[1]),
-    };
-
-    route.$$.paramsCache[href] = out;
-
-    return out;
-  },
-  loading: () => "loading...",
-  errorPath: "/",
-  listenEvents: [] as ((params: Params) => any)[],
-  beforeRender: (fn: (path: string) => any) => {
-    route.$$.beforeRender.push(fn);
-  },
-  beforePush: (fn: (path: string) => boolean | string) => {
-    route.$$.beforePush.push(fn);
-  },
-  use: function (path: string, component: any, delay?: number) {
-    if (/:/.test(path)) {
-      route.$$.paramsRouter[path.split(":")[0]] = path;
+    listFn.forEach((fn) => fn());
+    if (v === "popstate") {
+      _urls.pop();
     }
-    route.$$.routerMap[path] = component;
-    if (delay !== undefined) {
-      setTimeout(() => {
-        if (!component.__promising) {
-          component().then((v: any) => {
-            route.$$.routerMap[path as any] = v;
-          });
-        }
-      }, delay);
-    }
-  },
-  // scroll: {
-  //   saveScrollTop: (ele?: HTMLElement) => {
-  //     if (ele) {
-  //       cacheScrollTop[window.location.href] = ele.scrollTop;
-  //     } else {
-  //       cacheScrollTop[window.location.href] = window.scrollY;
-  //     }
-  //   },
-  //   replaceScrollTop: (ele?: HTMLElement): Promise<number> => {
-  //     return new Promise((res) => {
-  //       requestAnimationFrame(() => {
-  //         const top = cacheScrollTop[window.location.href] as number;
-  //         if (top) {
-  //           if (ele) {
-  //             ele.scrollTo(0, top);
-  //             (window as any).scrollElement = undefined;
-  //           } else {
-  //             window.scrollTo({ top });
-  //           }
-  //         }
-  //         res(top || 0);
-  //       });
-  //     });
-  //   },
-  //   getLastScrollTop: () =>
-  //     (cacheScrollTop[window.location.href] as number) || 0,
-  // },
-  push: async (path: string, scrollTop?: boolean) => {
-    if (typeof route.beforePush === "function") {
-      for (const fn of route.$$.beforePush) {
-        path = await Promise.resolve(fn(path));
-      }
-    }
-    if (typeof path !== "string") {
-      return;
-    }
-    window.history.pushState(null, "", "#" + path);
-    route.render();
-    if (scrollTop) {
-      window.scrollTo({ top: 0 });
-    }
-  },
-  replace: async (path: string, scrollTop?: boolean) => {
-    if (typeof route.beforePush === "function") {
-      for (const fn of route.$$.beforePush) {
-        path = await Promise.resolve(fn(path));
-      }
-    }
-    if (typeof path !== "string") {
-      return;
-    }
-    window.history.replaceState(null, "", "#" + path);
-    route.render();
-    if (scrollTop) {
-      window.scrollTo({ top: 0 });
-    }
-  },
-  pop: () => {
-    window.history.back();
-    route.render();
-    // cacheScrollTop[window.location.href] = undefined as any;
-  },
-  getPath: () => {
-    const url = window.location.hash.split("#")[1] || "/";
-    return url.split("?")[0];
-  },
-  render: async () => {
-    if (!route.$$.routerMap[route.errorPath]) {
-      console.error("Undefined route.errorPath:", route.errorPath);
-      return;
-    }
-    const path = route.getPath();
-    if (typeof route.beforeRender === "function") {
-      for (const fn of route.$$.beforeRender) {
-        await Promise.resolve(fn(path));
-      }
-    }
-
-    if (route.$$.nowRenderPath === path) {
-      return;
-    }
-
-    let component = route.$$.routerMap[path];
-
-    // 处理动态路由
-    if (!component) {
-      Object.keys(route.$$.paramsRouter).forEach((v) => {
-        if (path.indexOf(v) === 0) {
-          const p = route.$$.paramsRouter[v];
-          component = route.$$.routerMap[p];
-        }
-      });
-    }
-
-    if (!component) {
-      route.replace(route.errorPath + "?" + path);
-      return;
-    }
-
-    route.$$.nowRenderPath = path;
-
-    const timer = setTimeout(() => {
-      route.target.append(route.loading());
-    }, 200);
-
-    component.__promising = true;
-    let comp = await Promise.resolve(component());
-    if (comp.default) {
-      comp = comp.default;
-    }
-
-    const params = route.params();
-
-    route.listenEvents.forEach((fn) => {
-      fn(params);
-    });
-    if (typeof comp === "function") {
-      clearTimeout(timer);
-
-      const c = comp();
-      if (c.then) {
-        c.then((res: any) => {
-          if (res && (res as HTMLElement).nodeName) {
-            route.target.innerText = "";
-            route.target.appendChild(res);
-          }
-        });
-      } else {
-        route.target.innerText = "";
-        route.target.appendChild(c);
-      }
-    } else {
-      clearTimeout(timer);
-      if (comp.then) {
-        comp.then((res: any) => {
-          if (res && (res as HTMLElement).nodeName) {
-            route.target.innerText = "";
-            route.target.appendChild(res);
-          }
-        });
-      } else {
-        route.target.innerText = "";
-        route.target.appendChild(comp);
-      }
-    }
-  },
-};
-
-// 监听浏览器路由是否变化
-window.addEventListener("popstate", function () {
-  route.render();
+  });
 });
 
-export default route;
+// 记录是否渲染过
+// const renderdedList = {} as any;
+
+/** 渲染空元素 */
+function renderEmpty(tar: string) {
+  const span = document.createElement("span");
+  span.style.display = "none";
+  span.setAttribute("vailla-route", tar);
+  span.setAttribute("vailla-route-empty", tar);
+  return span;
+}
+
+function checkIsUrl(url: any) {
+  if (typeof url === "function") {
+    return url();
+  }
+  return queryString.decode(window.location.pathname) === url;
+}
+
+/** 路由编码 */
+let _n = 0;
+/** 记录上一个URL */
+let _lastUrl = "";
+const _urls = [] as { state: any; url: string }[];
+const renderFns = {} as { [key: string]: any };
+
+/** 路由 */
+const Route = ({ url, render, preload, keep }: VanillaRouteProps) => {
+  if (typeof render !== "function") {
+    throw "VanillaRoute.render need a Function";
+  }
+
+  if (!preload && typeof url === "string") {
+    renderFns[url] = render;
+  }
+
+  _n += 1;
+  const tar = "" + _n;
+
+  const fn = () => {
+    /** 预渲染 */
+    if (preload) {
+      const time = typeof preload === "number" ? preload : 50;
+      setTimeout(() => {
+        render();
+      }, time);
+    }
+
+    const lastTar = keepTags[url as any];
+
+    // 若有元素缓存，直接读取
+    if (typeof url === "string" && lastTar) {
+      const old = document.querySelector(`[vanilla-route="${lastTar}"]`) as any;
+      if (!old.__display) {
+        old.__display = window.getComputedStyle
+          ? window.getComputedStyle(old).display
+          : "block";
+      }
+      if (checkIsUrl(url)) {
+        old.style.display = old.__display;
+      } else {
+        old.style.display = "none";
+      }
+      return old;
+    }
+
+    if (!checkIsUrl(url)) {
+      return renderEmpty(tar);
+    }
+
+    const isNeedKeep = keep && typeof url == "string";
+
+    /** 击中的路由，但是为一个异步对象 */
+    const out = render();
+    if (out.then) {
+      const tempEle = renderEmpty(tar);
+      Promise.resolve(out).then((v) => {
+        if (v.default) {
+          const old = document.querySelector(`[vanilla-route="${tar}"]`);
+          if (!old) {
+            return;
+          }
+          const nextEle = v.default();
+          nextEle.setAttribute("vanilla-route", tar);
+          // 对元素tar做一个缓存
+          if (isNeedKeep) {
+            keepTags[url as string] = tar;
+          }
+          old.replaceWith(nextEle);
+        }
+      });
+      return tempEle;
+    }
+
+    out.setAttribute("vanilla-route", tar);
+
+    // 对元素tar做一个缓存
+    if (isNeedKeep) {
+      keepTags[url as string] = tar;
+    }
+    return out;
+  };
+
+  // 添加监听，每当 listing 时，尝试获取新的子组件并重新替换当前
+  listFn.push(() => {
+    const old = document.querySelector(
+      `[vanilla-route="${tar}"]`
+    ) as HTMLElement;
+    if (!old) {
+      return;
+    }
+    const nextEl = fn() as HTMLElement;
+    // 若两个都是空路由，不进行dom替换
+    if (
+      nextEl.getAttribute("vanilla-route-empty") &&
+      old.getAttribute("vanilla-route-empty")
+    ) {
+      return;
+    }
+    if (nextEl === old) {
+      return;
+    }
+    old.replaceWith(nextEl);
+  });
+  return fn();
+};
+
+Route.onlyReplace = isWechat && isIOS;
+
+Route.preload = (url: string) => {
+  const fn = renderFns[url];
+  if (typeof fn === "function") {
+    fn();
+    // 每个 url，preload 只需要加载一次执行一次
+    renderFns[url] = true;
+  }
+};
+
+Route.state = {};
+Route.queryString = queryString;
+Route.push = (url: string, state?: any) => {
+  // saveOldScrollTop();
+  if (Route.onlyReplace) {
+    Route.replace(url, state);
+    return;
+  }
+  _urls.push({ state, url });
+  if (state) {
+    url += "?" + queryString.stringify(state);
+  }
+  if (window.scrollTo) {
+    window.scrollTo({ top: 0 });
+  }
+  setTimeout(() => {
+    history.pushState(state, "", url);
+    window.dispatchEvent(new Event("pushState"));
+  });
+};
+Route.replace = (url: string, state?: any) => {
+  _urls.push({ state, url });
+
+  if (state) {
+    url += "?" + queryString.stringify(state);
+  }
+  if (window.scrollTo) {
+    window.scrollTo({ top: 0 });
+  }
+  setTimeout(() => {
+    history.replaceState(state, "", url);
+    window.dispatchEvent(new Event("replaceState"));
+  });
+};
+
+const _back = () => {
+  _lastUrl = location.pathname;
+  // 若在第一个页面，点返回，重新渲染 '/'
+  if (_urls.length === 0) {
+    history.replaceState({}, "", "/");
+    window.dispatchEvent(new Event("backState"));
+    return;
+  }
+
+  // 处理不增加 history 的方案返回
+  if (Route.onlyReplace) {
+    _urls.pop();
+    if (_urls.length === 0) {
+      history.replaceState({}, "", "/");
+    } else {
+      const { state, url } = _urls[_urls.length - 1];
+      history.replaceState(state, "", url);
+    }
+
+    window.dispatchEvent(new Event("backState"));
+    return;
+  }
+
+  history.back();
+};
+
+const __back = (num = 1, callback?: Function) => {
+  if (num <= 0) {
+    if (callback) {
+      setTimeout(() => {
+        callback();
+      });
+    }
+    return;
+  }
+  num -= 1;
+  _back();
+  setTimeout(() => {
+    __back(num, callback);
+  });
+};
+
+Route.back = (num = 1) => {
+  return new Promise((res) => {
+    __back(num, res);
+  });
+};
+
+Route.rootURL = "/";
+
+export default Route;
