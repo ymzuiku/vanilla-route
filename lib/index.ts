@@ -56,7 +56,7 @@ const _urls = [] as { state: any; url: string }[];
 const renderFns = {} as { [key: string]: any };
 
 /** 路由 */
-const Route = ({ url, render, preload, keep }: VanillaRouteProps) => {
+export const Route = ({ url, render, preload, keep }: VanillaRouteProps) => {
   if (typeof render !== "function") {
     throw "VanillaRoute.render need a Function";
   }
@@ -251,5 +251,3 @@ Route.back = (num = 1) => {
 };
 
 Route.rootURL = "/";
-
-export default Route;
