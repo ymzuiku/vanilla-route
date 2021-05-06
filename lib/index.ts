@@ -4,7 +4,7 @@ const ua = navigator.userAgent.toLocaleLowerCase();
 const isIOS = /(?:iphone)/.test(ua);
 const isWechat = /micromessenger/.test(ua);
 
-export interface VanillaRouteProps {
+export interface AoifeRouteProps {
   url: string | (() => boolean);
   render: any;
   keep?: boolean;
@@ -36,8 +36,15 @@ const listFn = [] as any[];
 function renderEmpty(tar: string) {
   const span = document.createElement("span");
   span.style.display = "none";
-  span.setAttribute("vailla-route", tar);
-  span.setAttribute("vailla-route-empty", tar);
+  span.setAttribute("vanilla-route", tar);
+  span.setAttribute("vanilla-route-empty", tar);
+
+  // 若没渲染过，添加first标签
+  // if (!renderdedList[tar]) {
+  //   renderdedList[tar] = true;
+  //   span.setAttribute("vanilla-route-first", tar);
+  // }
+
   return span;
 }
 
@@ -56,9 +63,9 @@ const _urls = [] as { state: any; url: string }[];
 const renderFns = {} as { [key: string]: any };
 
 /** 路由 */
-export const Route = ({ url, render, preload, keep }: VanillaRouteProps) => {
+export const Route = ({ url, render, preload, keep }: AoifeRouteProps) => {
   if (typeof render !== "function") {
-    throw "VanillaRoute.render need a Function";
+    throw "AoifeRoute.render need a Function";
   }
 
   if (!preload && typeof url === "string") {

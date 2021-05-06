@@ -1,9 +1,12 @@
 {
   "name": "vanilla-route",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "es/index.js",
   "types": "lib/index.ts",
   "private": false,
+  "exports":{
+    "import":"./lib/index.ts"
+  },
   "scripts": {
     "es": "esbuild --define:process.env.NODE_ENV=\\\"production\\\" lib/index.ts --outdir=es --target=esnext  --bundle --external:querystring-number --format=esm --minify --splitting"
   },
