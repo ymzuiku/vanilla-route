@@ -1,12 +1,12 @@
 lockfileVersion: 5.3
 
 specifiers:
-  querystring-number: ^1.0.8
+  querystring-number: ^1.0.9
   tslib: ^2.2.0
   typescript: ^4.2.4
 
 dependencies:
-  querystring-number: 1.0.8
+  querystring-number: 1.0.9
 
 devDependencies:
   tslib: 2.2.0
@@ -14,8 +14,8 @@ devDependencies:
 
 packages:
 
-  /querystring-number/1.0.8:
-    resolution: {integrity: sha512-2aoUEkmBizS9Zcx1Rf9tIm42Uifw4WtvankOak+1fewWXWs8tJO09vsa1bDID3QIl1L+T6BoPxIJBqGf6JRK0w==}
+  /querystring-number/1.0.9:
+    resolution: {integrity: sha512-h6mGG0LQExXR9W7bQOiArWFLbzsqxJg5Nr9iKz0GpP6S+CC8o2HFu9vE7MUvV4HpU9W4KBEcbvcAy/QrD6PIWQ==}
     dev: false
 
   /tslib/2.2.0:
